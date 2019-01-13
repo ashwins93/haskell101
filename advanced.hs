@@ -1,5 +1,6 @@
 import Data.List
-
+import Data.Function (on)
+import Data.Char
 -- HOC
 applyTwice :: (a -> a) -> a -> a
 applyTwice f x = f (f x)
@@ -38,4 +39,14 @@ search needle haystack =
   let nlen = length needle
   in foldl (\acc x -> if take nlen x == needle then True else acc) False (tails haystack)
 
-elemIndex' :: Eq a => a -> [a] -> [Int]
+groupByNegativity :: (Num a, Ord a) => [a] -> [[a]]
+groupByNegativity = groupBy ((==) `on` (>0))
+
+sortByLength :: [[a]] -> [[a]]
+sortByLength = sortBy (compare `on` length)
+
+encode :: Int -> String -> String
+encode shift = map chr . map (+ shift) . map ord 
+
+findByKey :: Eq k => k -> [(k, v)] -> Maybe v
+findByKey key = foldl (\acc (k,v) -> if k == key then Just v else acc) Nothing
