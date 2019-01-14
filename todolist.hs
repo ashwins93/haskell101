@@ -8,6 +8,7 @@ dispatch =
   [ ("add", add)
   , ("view", view)
   , ("remove", remove)
+  , ("bump", bump)
   ]
 
 main = do
@@ -35,6 +36,20 @@ remove [filePath, numString] = do
       tasks = lines contents
       filtered = delete (tasks !! number) tasks
   hPutStr tempHandle $ unlines filtered
+  hClose handle
+  hClose tempHandle
+  removeFile filePath
+  renameFile tempName filePath
+
+bump :: [String] -> IO ()
+bump [filePath, numString] = do
+  handle <- openFile filePath ReadMode
+  (tempName, tempHandle) <- openTempFile "." "temp"
+  contents <- hGetContents handle
+  let number = read numString
+      tasks = lines contents
+      bumped = (tasks !! number) : (delete (tasks !! number) tasks)
+  hPutStr tempHandle $ unlines bumped
   hClose handle
   hClose tempHandle
   removeFile filePath
