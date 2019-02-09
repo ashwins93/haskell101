@@ -1,5 +1,15 @@
 data Tree a = EmptyTree | Node a (Tree a) (Tree a) deriving (Eq, Show, Read)
 
+instance Functor Tree where
+  fmap _ EmptyTree = EmptyTree
+  fmap f (Node x left right) = Node (f x) (fmap f left) (fmap f right)
+
+instance Foldable Tree where
+  foldMap _ EmptyTree = mempty
+  foldMap f (Node x left right) = foldMap f left `mappend`
+                                  f x            `mappend`
+                                  foldMap f right
+
 singleton :: a -> Tree a
 singleton x = Node x EmptyTree EmptyTree
 
@@ -21,5 +31,4 @@ treeFromList :: (Ord a) => [a] -> Tree a
 treeFromList = foldr treeInsert EmptyTree
 
 treeToList :: Tree a -> [a]
-treeToList EmptyTree = []
-treeToList (Node x left right) = treeToList left ++ [x] ++ treeToList right
+treeToList = foldMap (\x -> [x])
